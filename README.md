@@ -1,6 +1,6 @@
 # fs2md
 
-A tiny CLI that walks a folder (recursively, by default) and dumps every accepted file into **one** Markdown document—perfect for pasting straight into an LLM.
+A tiny CLI that walks a folder (recursively, by default) and dumps every accepted file into **one** Markdown document—perfect for pasting straight into an LLM. The output includes a visual file tree followed by the contents of each file.
 
 ---
 

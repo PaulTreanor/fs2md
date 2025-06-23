@@ -1,14 +1,4 @@
 #!/usr/bin/env bun
-// Simple recursive directory → Markdown dumper.
-// Walks ROOT, converts each included file into a fenced block with a heading.
-// Flags:
-//   -o, --output FILE      write Markdown to FILE (default: stdout)
-//   -x, --skip PATTERN     glob(s) to ignore (repeatable)
-//   -e, --ext EXT[,EXT…]   whitelist of extensions (comma-separated)
-//   -b, --bytes SIZE       skip files > SIZE (k, M, G accepted)
-//   -t, --tokens N         skip files whose token count > N (≈ bytes/4)
-//   -h, --help             show usage
-
 import { readdirSync, statSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import meow from "meow";
@@ -23,7 +13,7 @@ interface Options {
 }
 
 const cli = meow(
-  `\nConvert every file under ROOT into one Markdown blob.\n\nUsage\n  $ fs2md <root> [options]\n\nOptions\n  -o, --output FILE        write Markdown here (default: stdout)\n  -x, --skip PATTERN       glob to ignore (repeatable)\n  -e, --ext EXT[,EXT…]     only these extensions\n  -b, --bytes SIZE         skip files larger than SIZE (k, M, G)\n  -t, --tokens N           skip files whose token count > N\n  -h, --help               show this message\n\nExamples\n  $ fs2md .\n  $ fs2md . -e .py,.md -x "*/node_modules/*" -b 2M -o repo.md\n`,
+  `\nConvert every file under ROOT into one Markdown blob.\n\nUsage\n  $ fs2md <root> [options]\n\nOptions\n  -o, --output FILE        write Markdown here (default: stdout)\n  -x, --skip PATTERN       glob to ignore (repeatable)\n  -e, --ext EXT[,EXT…]     only these extensions\n  -b, --bytes SIZE         skip files larger than SIZE (k, M, G)\n  -t, --tokens N           skip files whose token count > N\n  -h, --help               show this message\n`,
   {
     importMeta: import.meta,
     flags: {
@@ -65,16 +55,57 @@ main(root, options).catch((err) => {
 });
 
 async function main(rootPath: string, opts: Options) {
-  const lines: string[] = [];
   const absRoot = path.resolve(rootPath);
-  processDirectory(absRoot, absRoot, opts, lines);
-  const output = lines.join("\n");
+  const markdown: string[] = [];
 
+  const treeLines: string[] = [];
+  buildTree(absRoot, absRoot, opts, "", treeLines, true);
+  markdown.push("## File tree");
+  markdown.push("");
+  markdown.push("```text");
+  markdown.push(...treeLines);
+  markdown.push("```");
+  markdown.push("");
+
+  processDirectory(absRoot, absRoot, opts, markdown);
+
+  const output = markdown.join("\n");
   if (opts.output) {
     writeFileSync(opts.output, output);
   } else {
     console.log(output);
   }
+}
+
+function buildTree(
+  dir: string,
+  absRoot: string,
+  opts: Options,
+  prefix: string,
+  lines: string[],
+  rootLevel = false,
+) {
+  const entries = readdirSync(dir).filter((entry) => {
+    const rel = path.relative(absRoot, path.join(dir, entry));
+    if (shouldSkip(rel, path.join(dir, entry), opts)) return false;
+    return true;
+  }).sort((a, b) => a.localeCompare(b));
+
+  entries.forEach((entry, idx) => {
+    const absPath = path.join(dir, entry);
+    const relPath = path.relative(absRoot, absPath);
+    const stats = statSync(absPath);
+    const isLast = idx === entries.length - 1;
+    const connector = rootLevel ? "" : (isLast ? "└── " : "├── ");
+    lines.push(prefix + connector + entry);
+
+    if (stats.isDirectory()) {
+      const nextPrefix = rootLevel
+        ? ""
+        : prefix + (isLast ? "    " : "│   ");
+      buildTree(absPath, absRoot, opts, nextPrefix, lines);
+    }
+  });
 }
 
 function processDirectory(
