@@ -2,6 +2,9 @@
   "name": "fs2md",
   "module": "fs2md.ts",
   "type": "module",
+  "scripts": {
+    "test": "bun test"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
