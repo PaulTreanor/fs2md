@@ -1,25 +1,19 @@
 # fs2md
 
-A tiny CLI that walks a folder (recursively, by default) and dumps every accepted file into **one** Markdown document—perfect for pasting straight into an LLM. The output includes a visual file tree followed by the contents of each file.
+A CLI that walks a folder and adds the contents of every accepted file into a markdown document alongside a visual file tree. 
+
+Perfect for pasting context into LLMs.
 
 ---
 
 ## Install
 
 ```bash
-# Using Bun (recommended)
-bun add -g fs2md
-
-# Or via npm / pnpm / yarn once published
-npm install -g fs2md
-```
-
-If you prefer a zero‑dependency binary:
-
-```bash
 bun build fs2md.ts --compile --outfile fs2md
 mv fs2md /usr/local/bin
 ```
+
+I will probably publish as an npm library soon, I'm still very much testing it out though. 
 
 ---
 
