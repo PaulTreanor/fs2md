@@ -1,5 +1,6 @@
 {
   "name": "fs2md",
+  "version": "0.1.0",
   "module": "fs2md.ts",
   "type": "module",
   "scripts": {
@@ -12,7 +13,6 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "glob": "^11.0.3",
     "marked": "^15.0.12",
     "meow": "^13.2.0",
     "minimatch": "^10.0.3"
