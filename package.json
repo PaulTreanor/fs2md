@@ -3,6 +3,13 @@
   "version": "0.1.0",
   "module": "fs2md.ts",
   "type": "module",
+  "files": [
+    "fs2md.ts",
+    "README.md"
+  ],
+  "bin": {
+    "fs2md": "fs2md.ts"
+  },
   "scripts": {
     "test": "bun test"
   },
@@ -10,7 +17,7 @@
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "marked": "^15.0.12",
