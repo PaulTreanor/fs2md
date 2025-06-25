@@ -7,13 +7,20 @@ Perfect for pasting context into LLMs.
 ---
 
 ## Install
+Install via npm 
 
 ```bash
+npm install -g fs2md
+```
+
+Or build it manually 
+
+```bash
+# Clone repo
+bun install
 bun build fs2md.ts --compile --outfile fs2md
 mv fs2md /usr/local/bin
 ```
-
-I will probably publish as an npm library soon, I'm still very much testing it out though. 
 
 ---
 
