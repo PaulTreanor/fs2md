@@ -66,7 +66,7 @@ fs2md /var/www -b 4M -x "*.log" > site_snapshot.md
 ### 4 · Tight token budget (for GPT‑4o)
 
 ```bash
-fs2md ./docs -t 6000 | clipcopy
+fs2md ./docs -t 6000 | pbcopy
 ```
 
 ---
