@@ -63,7 +63,7 @@ fs2md . \
 fs2md /var/www -b 4M -x "*.log" > site_snapshot.md
 ```
 
-### 4 · Tight token budget (for GPT‑4o)
+### 4 · Tight token budget (to not blow your context windows)
 
 ```bash
 fs2md ./docs -t 6000 | pbcopy
