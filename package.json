@@ -1,22 +1,21 @@
 {
   "name": "fs2md",
-  "version": "0.1.0",
-  "module": "fs2md.ts",
+  "version": "0.2.0",
   "type": "module",
   "files": [
-    "fs2md.ts",
+    "dist",
     "README.md"
   ],
   "bin": {
-    "fs2md": "fs2md.ts"
+    "fs2md": "dist/fs2md.js"
   },
   "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
     "test": "bun test"
   },
   "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
+    "@types/bun": "latest",
     "typescript": "^5.8.3"
   },
   "dependencies": {

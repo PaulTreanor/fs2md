@@ -7,19 +7,25 @@ Perfect for pasting context into LLMs.
 ---
 
 ## Install
-Install via npm 
+
+Install globally via npm:
 
 ```bash
 npm install -g fs2md
 ```
 
-Or build it manually 
+Or use directly with npx (no installation needed):
+
+```bash
+npx fs2md <root> [options]
+```
+
+Or build it manually:
 
 ```bash
 # Clone repo
-bun install
-bun build fs2md.ts --compile --outfile fs2md
-mv fs2md /usr/local/bin
+npm install
+npm run build
 ```
 
 ---

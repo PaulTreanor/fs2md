@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 import { readdirSync, statSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import meow from "meow";
