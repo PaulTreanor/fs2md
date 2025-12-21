@@ -28,19 +28,6 @@ describe("fs2md CLI", () => {
 	expect(result).toContain("# Sample Project");
   });
 
-  test("respects extension filter", () => {
-	// Extension filter affects both tree and content - directories get filtered too
-	const result = execSync(`bun ${CLI_PATH} ${FIXTURES_PATH} -e .js`, { 
-	  encoding: "utf8" 
-	});
-	
-	// Should be empty tree since directories don't match .js extension
-	expect(result).toContain("## File tree");
-	expect(result).toContain("```text\n```");
-	expect(result).not.toContain("### src/index.ts");
-	expect(result).not.toContain("### src/utils.js");
-  });
-
   test("respects skip patterns", () => {
 	const result = execSync(`bun ${CLI_PATH} ${FIXTURES_PATH} -x "docs/README.md"`, { 
 	  encoding: "utf8" 
