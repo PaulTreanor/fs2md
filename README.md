@@ -41,8 +41,6 @@ fs2md <root> [options]
 | `-o, --output FILE`    | Write the Markdown here instead of stdout            | —       |
 | `-x, --skip PATTERN`   | Glob(s) to ignore (repeatable)                       | none    |
 | `-e, --ext EXT[,EXT…]` | Onlyinclude these extensions                         | all     |
-| `-b, --bytes SIZE`     | Skip files larger than SIZE (`k`, `M`, `G` accepted) | none    |
-| `-t, --tokens N`       | Skip files whose estimated token count > N           | none    |
 
 ---
 
@@ -61,18 +59,6 @@ fs2md . \
   -e .ts,.md \
   -x "*/node_modules/*" \
   -o repo.md
-```
-
-### 3 · Limit big binaries (> 4 MB) and noisy logs
-
-```bash
-fs2md /var/www -b 4M -x "*.log" > site_snapshot.md
-```
-
-### 4 · Tight token budget (to not blow your context windows)
-
-```bash
-fs2md ./docs -t 6000 | pbcopy
 ```
 
 ---

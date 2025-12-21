@@ -8,20 +8,16 @@ interface Options {
   output?: string;
   skipPatterns: string[];
   extSet?: Set<string>;
-  maxBytes?: number;
-  maxTokens?: number;
 }
 
 const cli = meow(
-  `\nConvert every file under ROOT into one Markdown blob.\n\nUsage\n  $ fs2md <root> [options]\n\nOptions\n  -o, --output FILE        write Markdown here (default: stdout)\n  -x, --skip PATTERN       glob to ignore (repeatable)\n  -e, --ext EXT[,EXT…]     only these extensions\n  -b, --bytes SIZE         skip files larger than SIZE (k, M, G)\n  -t, --tokens N           skip files whose token count > N\n  -h, --help               show this message\n`,
+  `\nConvert every file under ROOT into one Markdown blob.\n\nUsage\n  $ fs2md <root> [options]\n\nOptions\n  -o, --output FILE        write Markdown here (default: stdout)\n  -x, --skip PATTERN       glob to ignore (repeatable)\n  -e, --ext EXT[,EXT…]     only these extensions\n    -h, --help               show this message\n`,
   {
     importMeta: import.meta,
     flags: {
       output: { type: "string", shortFlag: "o" },
       skip: { type: "string", shortFlag: "x", isMultiple: true },
       ext: { type: "string", shortFlag: "e" },
-      bytes: { type: "string", shortFlag: "b" },
-      tokens: { type: "number", shortFlag: "t" },
     },
   },
 );
@@ -39,14 +35,6 @@ if (cli.flags.ext) {
     .filter(Boolean)
     .map((s) => (s.startsWith(".")) ? s : `.${s}`);
   options.extSet = new Set(exts);
-}
-
-if (cli.flags.bytes) {
-  options.maxBytes = parseSize(cli.flags.bytes as string);
-}
-
-if (cli.flags.tokens) {
-  options.maxTokens = Number(cli.flags.tokens);
 }
 
 main(root, options).catch((err) => {
@@ -93,7 +81,6 @@ function buildTree(
 
   entries.forEach((entry, idx) => {
     const absPath = path.join(dir, entry);
-    const relPath = path.relative(absRoot, absPath);
     const stats = statSync(absPath);
     const isLast = idx === entries.length - 1;
     const connector = rootLevel ? "" : (isLast ? "└── " : "├── ");
@@ -123,7 +110,7 @@ function processDirectory(
     if (stats.isDirectory()) {
       processDirectory(absPath, absRoot, opts, lines);
     } else if (stats.isFile()) {
-      appendFile(absPath, relPath, stats.size, opts, lines);
+      appendFile(absPath, relPath, lines);
     }
   }
 }
@@ -138,27 +125,15 @@ function shouldSkip(relPath: string, absPath: string, opts: Options): boolean {
     if (!opts.extSet.has(ext)) return true;
   }
 
-  if (opts.maxBytes !== undefined) {
-    const size = statSync(absPath).size;
-    if (size > opts.maxBytes) return true;
-  }
-
   return false;
 }
 
 function appendFile(
   absPath: string,
   relPath: string,
-  size: number,
-  opts: Options,
   lines: string[],
 ) {
-  let estTokens = bytesToTokens(size);
-  if (opts.maxTokens !== undefined && estTokens > opts.maxTokens) return;
-
   const content = readFileSync(absPath, "utf8");
-  estTokens = bytesToTokens(Buffer.byteLength(content, "utf8"));
-  if (opts.maxTokens !== undefined && estTokens > opts.maxTokens) return;
 
   const ext = path.extname(relPath).replace(/^\./, "");
 
@@ -168,25 +143,4 @@ function appendFile(
   lines.push(content);
   lines.push("```");
   lines.push("");
-}
-
-function parseSize(str: string): number {
-  const match = /^(\d+(?:\.\d+)?)([kKmMgG]?)$/.exec(str.trim());
-  if (!match) throw new Error(`Invalid size format: ${str}`);
-  const num = parseFloat(match[1]);
-  const unit = match[2].toLowerCase();
-  switch (unit) {
-    case "k":
-      return num * 1024;
-    case "m":
-      return num * 1024 * 1024;
-    case "g":
-      return num * 1024 * 1024 * 1024;
-    default:
-      return num;
-  }
-}
-
-function bytesToTokens(bytes: number): number {
-  return Math.ceil(bytes / 4);
 }

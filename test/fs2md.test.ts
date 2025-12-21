@@ -66,14 +66,4 @@ describe("fs2md CLI", () => {
       } catch {}
     }
   });
-
-  test("handles byte size limits", () => {
-    const result = execSync(`bun ${CLI_PATH} ${FIXTURES_PATH} -b 10`, { 
-      encoding: "utf8" 
-    });
-    
-    // Small byte limit should filter out most files
-    expect(result).toContain("## File tree");
-    // Exact content depends on file sizes, but it should process normally
-  });
 });
