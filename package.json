@@ -19,7 +19,6 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "marked": "^15.0.12",
     "meow": "^13.2.0",
     "minimatch": "^10.0.3"
   }
