@@ -4,6 +4,11 @@ import path from "path";
 import meow from "meow";
 import {minimatch} from "minimatch";
 
+const DEFAULT_EXCLUDES = [
+	"node_modules/**",
+	".git/**"
+];
+
 interface Options {
 	output?: string;
 	includePatterns: string[];
@@ -17,14 +22,19 @@ Usage:
 	$ fs2md <root> [options]
 
 Options:
-	-o, --output FILE           write Markdown here (default: stdout)
-	-i, --include PATTERN       glob to include (repeatable, comma-separated)
-	-x, --exclude PATTERN       glob to exclude (repeatable, comma-separated)
-	-h, --help                  show this message
+	-o, --output FILE              write Markdown here (default: stdout)
+	-i, --include PATTERN          glob to include (repeatable, comma-separated)
+	-x, --exclude PATTERN          glob to exclude (repeatable, comma-separated)
+	    --no-default-excludes      disable default excludes (node_modules, .git)
+	-h, --help                     show this message
+
+Default excludes (unless --no-default-excludes):
+	node_modules/**, .git/**
 
 Examples:
-	$ fs2md . -x "node_modules/**, *.log"
+	$ fs2md . -x "*.log"
 	$ fs2md . -i "**/*.ts" -x "**/*.test.ts"
+	$ fs2md . --no-default-excludes
 \n
 `;
 
@@ -36,19 +46,28 @@ const cli = meow(
 			output: { type: "string", shortFlag: "o" },
 			include: { type: "string", shortFlag: "i", isMultiple: true },
 			exclude: { type: "string", shortFlag: "x", isMultiple: true },
+			defaultExcludes: { type: "boolean", default: true },
 		},
 	},
 );
 
 const root = cli.input[0] ?? ".";
+
+// Merge user excludes with default excludes (unless --no-default-excludes)
+const userExcludes = ((cli.flags.exclude ?? []) as string[])
+	.flatMap(pattern => pattern.split(',').map(p => p.trim()))
+	.filter(p => p.length > 0);
+
+const allExcludes = cli.flags.defaultExcludes
+	? [...DEFAULT_EXCLUDES, ...userExcludes]
+	: userExcludes;
+
 const options: Options = {
 	output: cli.flags.output,
 	includePatterns: ((cli.flags.include ?? []) as string[])
 		.flatMap(pattern => pattern.split(',').map(p => p.trim()))
 		.filter(p => p.length > 0),
-	excludePatterns: ((cli.flags.exclude ?? []) as string[])
-		.flatMap(pattern => pattern.split(',').map(p => p.trim()))
-		.filter(p => p.length > 0),
+	excludePatterns: allExcludes,
 };
 
 const shouldInclude = (relPath: string, opts: Options): boolean => {

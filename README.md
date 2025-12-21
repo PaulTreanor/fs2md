@@ -10,8 +10,8 @@ Perfect for pasting context into LLMs.
 # Include only TypeScript, exclude tests
 npx fs2md . -i "**/*.ts" -x "**/*.test.ts" | pbcopy
 
-# Or save to file
-npx fs2md . -x "node_modules/**" -o codebase.md
+# Or save to file (node_modules and .git excluded by default)
+npx fs2md . -o codebase.md
 ```
 
 ## Install
@@ -36,11 +36,14 @@ npx fs2md <root> [options]
 fs2md <root> [options]
 ```
 
-| Option                  | Description                                          | Default |
-| ----------------------  | ---------------------------------------------------- | ------- |
-| `-o, --output FILE`     | Write the Markdown here instead of stdout            | —       |
-| `-i, --include PATTERN` | Glob(s) to include (repeatable, comma-separated)     | all     |
-| `-x, --exclude PATTERN` | Glob(s) to exclude (repeatable, comma-separated)     | none    |
+| Option                     | Description                                          | Default |
+| -------------------------- | ---------------------------------------------------- | ------- |
+| `-o, --output FILE`        | Write the Markdown here instead of stdout            | —       |
+| `-i, --include PATTERN`    | Glob(s) to include (repeatable, comma-separated)     | all     |
+| `-x, --exclude PATTERN`    | Glob(s) to exclude (repeatable, comma-separated)     | *see below* |
+| `--no-default-excludes`    | Disable default excludes                             | false   |
+
+**Default excludes:** `node_modules/**`, `.git/**` (disable with `--no-default-excludes`)
 
 ---
 

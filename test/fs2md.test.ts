@@ -158,4 +158,47 @@ describe("fs2md CLI", () => {
 			expect(result).not.toContain("### docs/README.md");
 		});
 	});
+
+	describe("Default excludes:", () => {
+		test("excludes node_modules contents by default", () => {
+			const result = execSync(`bun ${CLI_PATH} ${FIXTURES_PATH}`, {
+				encoding: "utf8"
+			});
+
+			expect(result).toContain("### src/index.ts");
+			expect(result).not.toContain("### node_modules/fake.js");
+			expect(result).not.toContain("// fake module");
+		});
+
+		test("excludes .git contents by default", () => {
+			const result = execSync(`bun ${CLI_PATH} ${FIXTURES_PATH}`, {
+				encoding: "utf8"
+			});
+
+			expect(result).toContain("### src/index.ts");
+			expect(result).not.toContain("### .git/config");
+			expect(result).not.toContain("fake git data");
+		});
+
+		test("--no-default-excludes includes node_modules and .git contents", () => {
+			const result = execSync(`bun ${CLI_PATH} ${FIXTURES_PATH} --no-default-excludes`, {
+				encoding: "utf8"
+			});
+
+			expect(result).toContain("### src/index.ts");
+			expect(result).toContain("### node_modules/fake.js");
+			expect(result).toContain("### .git/config");
+		});
+
+		test("user excludes are added to default excludes", () => {
+			const result = execSync(`bun ${CLI_PATH} ${FIXTURES_PATH} -x "**/*.js"`, {
+				encoding: "utf8"
+			});
+
+			expect(result).toContain("### src/index.ts");
+			expect(result).not.toContain("### src/utils.js");
+			expect(result).not.toContain("### node_modules/fake.js");
+			expect(result).not.toContain("### .git/config");
+		});
+	});
 });
