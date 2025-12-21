@@ -9,7 +9,18 @@ interface Options {
 	skipPatterns: string[];
 }
 
-const helpMessageString = `\nConvert every file under ROOT into one Markdown blob.\n\nUsage\n  $ fs2md <root> [options]\n\nOptions\n  -o, --output FILE        write Markdown here (default: stdout)\n  -x, --skip PATTERN       glob to ignore (repeatable)\n    -h, --help               show this message\n`;
+const helpMessageString = `
+\nConvert every file under ROOT into one Markdown blob.
+
+Usage:
+	$ fs2md <root> [options]
+
+Options:
+	-o, --output FILE        write Markdown here (default: stdout)
+	-x, --skip PATTERN       glob to ignore (repeatable)
+	-h, --help               show this message
+\n
+`;
 
 
 const cli = meow(
