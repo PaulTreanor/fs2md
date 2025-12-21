@@ -39,7 +39,7 @@ fs2md <root> [options]
 | Option                 | Description                                          | Default |
 | ---------------------- | ---------------------------------------------------- | ------- |
 | `-o, --output FILE`    | Write the Markdown here instead of stdout            | —       |
-| `-x, --skip PATTERN`   | Glob(s) to ignore (repeatable)                       | none    |
+| `-x, --exclude PATTERN`   | Glob(s) to ignore (repeatable)                       | none    |
 | `-e, --ext EXT[,EXT…]` | Onlyinclude these extensions                         | all     |
 
 ---
@@ -52,7 +52,7 @@ fs2md <root> [options]
 fs2md .
 ```
 
-### 2 · Produce a single `repo.md`,  skip `node_modules`, only `.ts` & `.md` files
+### 2 · Produce a single `repo.md`,  exclude `node_modules`, only `.ts` & `.md` files
 
 ```bash
 fs2md . \

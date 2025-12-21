@@ -28,7 +28,7 @@ describe("fs2md CLI", () => {
 	expect(result).toContain("# Sample Project");
   });
 
-  test("respects skip patterns", () => {
+  test("respects exclude patterns", () => {
 	const result = execSync(`bun ${CLI_PATH} ${FIXTURES_PATH} -x "docs/README.md"`, { 
 	  encoding: "utf8" 
 	});
