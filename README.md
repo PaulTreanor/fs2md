@@ -1,10 +1,18 @@
 # fs2md
 
-A CLI that walks a folder and adds the contents of every accepted file into a markdown document alongside a visual file tree. 
+A CLI that adds contents of files to markdown along with a visual file tree.
 
 Perfect for pasting context into LLMs.
 
----
+
+## Quick Start
+```bash
+# Include only TypeScript, exclude tests
+npx fs2md . -i "**/*.ts" -x "**/*.test.ts" | pbcopy
+
+# Or save to file
+npx fs2md . -x "node_modules/**" -o codebase.md
+```
 
 ## Install
 
@@ -20,14 +28,6 @@ Or use directly with npx (no installation needed):
 npx fs2md <root> [options]
 ```
 
-Or build it manually:
-
-```bash
-# Clone repo
-npm install
-npm run build
-```
-
 ---
 
 ## Usage
@@ -36,11 +36,11 @@ npm run build
 fs2md <root> [options]
 ```
 
-| Option                 | Description                                          | Default |
-| ---------------------- | ---------------------------------------------------- | ------- |
-| `-o, --output FILE`    | Write the Markdown here instead of stdout            | —       |
-| `-x, --exclude PATTERN`   | Glob(s) to ignore (repeatable)                       | none    |
-| `-e, --ext EXT[,EXT…]` | Onlyinclude these extensions                         | all     |
+| Option                  | Description                                          | Default |
+| ----------------------  | ---------------------------------------------------- | ------- |
+| `-o, --output FILE`     | Write the Markdown here instead of stdout            | —       |
+| `-i, --include PATTERN` | Glob(s) to include (repeatable, comma-separated)     | all     |
+| `-x, --exclude PATTERN` | Glob(s) to exclude (repeatable, comma-separated)     | none    |
 
 ---
 
@@ -52,14 +52,69 @@ fs2md <root> [options]
 fs2md .
 ```
 
-### 2 · Produce a single `repo.md`,  exclude `node_modules`, only `.ts` & `.md` files
+
+### 2 · Only include TypeScript files, exclude tests, then copy to clipboard
 
 ```bash
-fs2md . \
-  -e .ts,.md \
-  -x "*/node_modules/*" \
-  -o repo.md
+fs2md . -i "**/*.ts" -x "**/*.test.ts" | pbCopy
 ```
+
+### 3 · Produce a single repo.md that excludes node_modules
+
+```bash
+fs2md . -x "node_modules/**" -o repo.md"
+```
+
+### 4 · Include only source files from specific directories
+
+```bash
+fs2md . -i "src/**, lib/**" -o codebase.md
+```
+
+
+## Example Input and output
+
+Input:
+```bash
+fs2md ./test/fixtures/sample-project -x "**/*.js"
+```
+
+Output:
+<pre>
+## File tree
+
+```text
+├── .gitignore
+├── docs
+│   └── README.md
+└── src
+    └── index.ts
+```
+
+### .gitignore
+
+```
+node_modules/
+*.log
+```
+
+### docs/README.md
+
+```md
+# Sample Project
+
+This is a test fixture.
+```
+
+### src/index.ts
+
+```ts
+export function hello() {
+  return "Hello World";
+}
+```
+</pre>
+
 
 ---
 
@@ -76,3 +131,15 @@ fs2md . \
 ## License
 
 MIT
+
+## Build and run manually
+
+```bash
+# Clone repo
+npm install
+npm run build
+
+# Run local build 
+node dist/fs2md.js <root> [options]
+```
+

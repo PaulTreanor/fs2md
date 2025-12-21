@@ -6,6 +6,7 @@ import {minimatch} from "minimatch";
 
 interface Options {
 	output?: string;
+	includePatterns: string[];
 	excludePatterns: string[];
 }
 
@@ -16,9 +17,14 @@ Usage:
 	$ fs2md <root> [options]
 
 Options:
-	-o, --output FILE        write Markdown here (default: stdout)
-	-x, --exclude PATTERN       glob to ignore (repeatable)
-	-h, --help               show this message
+	-o, --output FILE           write Markdown here (default: stdout)
+	-i, --include PATTERN       glob to include (repeatable, comma-separated)
+	-x, --exclude PATTERN       glob to exclude (repeatable, comma-separated)
+	-h, --help                  show this message
+
+Examples:
+	$ fs2md . -x "node_modules/**, *.log"
+	$ fs2md . -i "**/*.ts" -x "**/*.test.ts"
 \n
 `;
 
@@ -28,6 +34,7 @@ const cli = meow(
 		importMeta: import.meta,
 		flags: {
 			output: { type: "string", shortFlag: "o" },
+			include: { type: "string", shortFlag: "i", isMultiple: true },
 			exclude: { type: "string", shortFlag: "x", isMultiple: true },
 		},
 	},
@@ -36,15 +43,47 @@ const cli = meow(
 const root = cli.input[0] ?? ".";
 const options: Options = {
 	output: cli.flags.output,
-	excludePatterns: (cli.flags.exclude ?? []) as string[],
+	includePatterns: ((cli.flags.include ?? []) as string[])
+		.flatMap(pattern => pattern.split(',').map(p => p.trim()))
+		.filter(p => p.length > 0),
+	excludePatterns: ((cli.flags.exclude ?? []) as string[])
+		.flatMap(pattern => pattern.split(',').map(p => p.trim()))
+		.filter(p => p.length > 0),
 };
 
-const shouldExclude = (relPath: string, absPath: string, opts: Options): boolean => {
+const shouldInclude = (relPath: string, opts: Options): boolean => {
+	// If no include patterns specified, include everything
+	if (opts.includePatterns.length === 0) return true;
+
+	// If include patterns exist, file must match at least one
+	for (const pattern of opts.includePatterns) {
+		if (minimatch(relPath, pattern, { dot: true })) return true;
+	}
+
+	return false;
+}
+
+const shouldExclude = (relPath: string, opts: Options): boolean => {
 	for (const pattern of opts.excludePatterns) {
 		if (minimatch(relPath, pattern, { dot: true })) return true;
 	}
 
 	return false;
+}
+
+const shouldProcessPath = (relPath: string, absPath: string, opts: Options): boolean => {
+	const stats = statSync(absPath);
+
+	// Always exclude if pattern matches (works for both files and directories)
+	if (shouldExclude(relPath, opts)) return false;
+
+	// For directories, always process them (so we can traverse into them)
+	if (stats.isDirectory()) return true;
+
+	// For files, check include patterns
+	if (!shouldInclude(relPath, opts)) return false;
+
+	return true;
 }
 
 const buildTree = (
@@ -57,8 +96,7 @@ const buildTree = (
 ) => {
 	const entries = readdirSync(dir).filter((entry) => {
 		const rel = path.relative(absRoot, path.join(dir, entry));
-		if (shouldExclude(rel, path.join(dir, entry), opts)) return false;
-		return true;
+		return shouldProcessPath(rel, path.join(dir, entry), opts);
 	}).sort((a, b) => a.localeCompare(b));
 
 	entries.forEach((entry, idx) => {
@@ -86,7 +124,7 @@ const processDirectory = (
 	for (const entry of readdirSync(dir)) {
 		const absPath = path.join(dir, entry);
 		const relPath = path.relative(absRoot, absPath);
-		if (shouldExclude(relPath, absPath, opts)) continue;
+		if (!shouldProcessPath(relPath, absPath, opts)) continue;
 
 		const stats = statSync(absPath);
 		if (stats.isDirectory()) {
