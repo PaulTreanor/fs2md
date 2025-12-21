@@ -12,6 +12,9 @@ npx fs2md . -i "**/*.ts" -x "**/*.test.ts" | pbcopy
 
 # Or save to file (node_modules and .git excluded by default)
 npx fs2md . -o codebase.md
+
+# Exclude some binary files
+fs2md . -x "**/*.{png,jpg,gif,pdf}"
 ```
 
 ## Install
