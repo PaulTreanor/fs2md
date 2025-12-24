@@ -67,13 +67,29 @@ describe("fs2md CLI", () => {
 		});
 		
 		test("exclude directory", () => {
-			const resultExcludeDocsDirectory = execSync(`bun ${CLI_PATH} ${FIXTURES_PATH} -x "docs/**"`, { 
-				encoding: "utf8" 
+			const resultExcludeDocsDirectory = execSync(`bun ${CLI_PATH} ${FIXTURES_PATH} -x "docs/**"`, {
+				encoding: "utf8"
 			});
 
 			expect(resultExcludeDocsDirectory).toContain("### src/index.ts");
 			expect(resultExcludeDocsDirectory).toContain("### src/utils.js");
 			expect(resultExcludeDocsDirectory).not.toContain("### docs/README.md");
+		});
+
+		test("exclude directory with /** pattern excludes contents but shows directory in tree", () => {
+			const result = execSync(`bun ${CLI_PATH} ${FIXTURES_PATH} -x ".next/**"`, {
+				encoding: "utf8"
+			});
+
+			// Contents should be excluded
+			expect(result).not.toContain("### .next/config.json");
+			expect(result).not.toContain("### .next/cache/build.json");
+			expect(result).not.toContain("cached data");
+			expect(result).not.toContain("nextjs config");
+
+			// But directory itself appears in the tree (current behavior - may be considered a bug)
+			// The pattern .next/** only matches paths INSIDE .next/, not the directory itself
+			expect(result).toContain(".next");
 		});
 
 		test("multiple exclude rules", () => {
